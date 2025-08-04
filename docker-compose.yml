@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  postgres-recebedor:
+    image: postgres:16
+    container_name: postgres-recebedor
+    environment:
+      POSTGRES_DB: recebedor_db
+      POSTGRES_USER: recebedorPSP
+      POSTGRES_PASSWORD: senha123
+    ports:
+      - "5432:5432"  # Porta externa:interna
+    volumes:
+      - recebedor_data:/var/lib/postgresql/data
+
+  postgres-pagador:
+    image: postgres:16
+    container_name: postgres-pagador
+    environment:
+      POSTGRES_DB: pagador_db
+      POSTGRES_USER: pagadorPSP
+      POSTGRES_PASSWORD: senha123
+    ports:
+      - "5442:5432"
+    volumes:
+      - pagador_data:/var/lib/postgresql/data
+
+  postgres-central:
+    image: postgres:16
+    container_name: postgres-central
+    environment:
+      POSTGRES_DB: central_db
+      POSTGRES_USER: centralPSP
+      POSTGRES_PASSWORD: senha123
+    ports:
+      - "5452:5432"
+    volumes:
+      - central_data:/var/lib/postgresql/data
+
+volumes:
+  recebedor_data:
+  pagador_data:
+  central_data:
