@@ -3,29 +3,25 @@ package bank.recebedorPSP.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.UUID;
 
 @Entity
-@Table(name = "Conta")
+@Table(name = "ChavePix")
 @Getter
 @Setter
-public class Conta {
+public class ChavePix {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(length = 250)
-    private String numero;
-
-    @Column(length = 250)
-    private String agencia;
-
-    private Double saldo;
-
     @Enumerated(EnumType.STRING)
-    private ContaTipo tipo;
+    private ChavePixTipo tipo;
+
+    @Column(length = 250)
+    private String valor;
+
+    private Boolean ativa;
 
     @ManyToOne
-    private Cliente cliente;
+    private Conta conta;
 }

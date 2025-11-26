@@ -5,23 +5,23 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Conta")
-public class Conta {
+@Table(name = "CobrancaPix")
+public class CobrancaPix {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(length = 250)
-    private String numero;
+    private String txid;
+
+    private Double valor;
 
     @Column(length = 250)
-    private String agencia;
-
-    private Double saldo;
+    private String descricao;
 
     @Enumerated(EnumType.STRING)
-    private ContaTipo tipo;
+    private StatusPix status;
 
     @ManyToOne
-    private Cliente cliente;
+    private ChavePix chavePix;
 }

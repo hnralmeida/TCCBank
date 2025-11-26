@@ -1,27 +1,23 @@
 package bank.pagadorPSP.model;
 
 import jakarta.persistence.*;
-
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Conta")
-public class Conta {
+@Table(name = "AuditoriaLog")
+public class AuditoriaLog {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(length = 250)
-    private String numero;
+    private String evento;
 
     @Column(length = 250)
-    private String agencia;
+    private String detalhe;
 
-    private Double saldo;
+    private LocalDate data;
 
-    @Enumerated(EnumType.STRING)
-    private ContaTipo tipo;
-
-    @ManyToOne
-    private Cliente cliente;
+    private UUID referenciaId;
 }
