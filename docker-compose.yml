@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres-recebedor:
     image: postgres:16
@@ -12,6 +10,12 @@ services:
       - "5432:5432"  # Porta externa:interna
     volumes:
       - recebedor_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recebedorPSP -d recebedor_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   postgres-pagador:
     image: postgres:16
@@ -24,6 +28,12 @@ services:
       - "5442:5432"
     volumes:
       - pagador_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pagadorPSP -d pagador_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   postgres-central:
     image: postgres:16
@@ -36,6 +46,69 @@ services:
       - "5452:5432"
     volumes:
       - central_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U centralPSP -d central_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  recebedor-psp:
+    build: ./recebedorPSP
+    image: recebedor-psp:latest
+    container_name: recebedor-psp
+    depends_on:
+      postgres-recebedor:
+        condition: service_healthy
+    links:
+      - postgres-recebedor
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-recebedor:5432/recebedor_db
+      SPRING_DATASOURCE_USERNAME: recebedorPSP
+      SPRING_DATASOURCE_PASSWORD: senha123
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  pagador-psp:
+    build: ./pagadorPSP
+    image: pagador-psp:latest
+    container_name: pagador-psp
+    depends_on:
+      postgres-pagador:
+        condition: service_healthy
+    links:
+      - postgres-pagador
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-pagador:5432/pagador_db
+      SPRING_DATASOURCE_USERNAME: pagadorPSP
+      SPRING_DATASOURCE_PASSWORD: senha123
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8090:8090"
+    restart: unless-stopped
+
+  banco-central:
+    build: ./BancoCentral
+    image: banco-central:latest
+    container_name: banco-central
+    depends_on:
+      postgres-central:
+        condition: service_healthy
+    links:
+      - postgres-central
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-central:5432/central_db
+      SPRING_DATASOURCE_USERNAME: centralPSP
+      SPRING_DATASOURCE_PASSWORD: senha123
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    ports:
+      - "8095:8095"
+    restart: unless-stopped
 
 volumes:
   recebedor_data:
