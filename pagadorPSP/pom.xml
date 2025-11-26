@@ -71,6 +71,11 @@
 			<version>42.7.3</version> <!-- ou uma versão compatível -->
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
 	</dependencies>
 
 
