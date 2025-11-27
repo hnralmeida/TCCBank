@@ -1,9 +1,10 @@
 package bank.recebedorPSP.controller;
 
-import bank.recebedorPSP.model.MensagemSPI;
-import bank.recebedorPSP.service.MensagemSPIService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import bank.recebedorPSP.model.MensagemSPI;
+import bank.recebedorPSP.service.MensagemSPIService;
 
 @RestController
 @RequestMapping("/mensagemspi")

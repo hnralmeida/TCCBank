@@ -1,9 +1,10 @@
 package bank.recebedorPSP.controller;
 
-import bank.recebedorPSP.model.AuditoriaLog;
-import bank.recebedorPSP.service.AuditoriaLogService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import bank.recebedorPSP.model.AuditoriaLog;
+import bank.recebedorPSP.service.AuditoriaLogService;
 
 @RestController
 @RequestMapping("/auditoria")
