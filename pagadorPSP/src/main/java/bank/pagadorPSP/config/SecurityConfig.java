@@ -27,11 +27,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/cliente").permitAll()
-                        .requestMatchers("/usuario").permitAll() // Libera o endpoint /usuario
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/api").anonymous()
-                        .anyRequest().permitAll() // Exige autenticação para todos os outros endpoints
+                        .requestMatchers("/cliente", "/conta", "/chavepix").permitAll()
+                        .anyRequest().permitAll()
                 );
         return http.build();
     }

@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuditoriaLogService extends _GenericService<AuditoriaLog, AuditoriaLogRepository> {
-    protected AuditoriaLogService() {
+
+    private final AuditoriaLogRepository auditoriaLogRepository;
+
+    protected AuditoriaLogService(AuditoriaLogRepository auditoriaLogRepository) {
+        super(auditoriaLogRepository);
+        this.auditoriaLogRepository = auditoriaLogRepository;
     }
 }

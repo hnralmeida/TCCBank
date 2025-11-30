@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Validated
-@RestController
-@RequestMapping({"/api"})
 public abstract class _GenericController<TipoEntidade> {
     private final _GenericServiceTypes<TipoEntidade> genericService;
 

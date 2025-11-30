@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ParticipanteSPIService extends _GenericService<ParticipanteSPI, ParticipanteSPIRepository> {
-    protected ParticipanteSPIService() {
+
+    private final ParticipanteSPIRepository participanteSPIRepository;
+
+    protected ParticipanteSPIService(ParticipanteSPIRepository participanteSPIRepository) {
+        super(participanteSPIRepository);
+        this.participanteSPIRepository = participanteSPIRepository;
     }
 }

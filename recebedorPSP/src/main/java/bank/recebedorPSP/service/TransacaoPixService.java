@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TransacaoPixService extends _GenericService<TransacaoPix, TransacaoPixRepository> {
-    protected TransacaoPixService() {
+
+    private final TransacaoPixRepository transacaoPixRepository;
+
+    protected TransacaoPixService(TransacaoPixRepository transacaoPixRepository) {
+        super(transacaoPixRepository);
+        this.transacaoPixRepository = transacaoPixRepository;
     }
 }

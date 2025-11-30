@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuditoriaDICTService extends _GenericService<AuditoriaDICT, AuditoriaDICTRepository> {
-    protected AuditoriaDICTService() {
+
+    private final AuditoriaDICTRepository auditoriaDICTRepository;
+
+    protected AuditoriaDICTService(AuditoriaDICTRepository auditoriaDICTRepository) {
+        super(auditoriaDICTRepository);
+        this.auditoriaDICTRepository = auditoriaDICTRepository;
     }
 }

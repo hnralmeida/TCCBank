@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ClienteService extends _GenericService<Cliente, ClienteRepository> {
-    protected ClienteService() {
+
+    private final ClienteRepository clienteRepository;
+
+    protected ClienteService(ClienteRepository clienteRepository) {
+        super(clienteRepository);
+        this.clienteRepository = clienteRepository;
     }
 }

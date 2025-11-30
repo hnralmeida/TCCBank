@@ -1,9 +1,8 @@
 package bank.pagadorPSP.controller;
 
-import bank.pagadorPSP.exception.GenericOperation;
-import bank.pagadorPSP.service._GenericServiceTypes;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,12 +12,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import bank.pagadorPSP.exception.GenericOperation;
+import bank.pagadorPSP.service._GenericServiceTypes;
 
 @Validated
 @RestController
-@RequestMapping({"/api"})
 public abstract class _GenericController<TipoEntidade> {
     private final _GenericServiceTypes<TipoEntidade> genericService;
 

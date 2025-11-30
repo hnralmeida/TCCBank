@@ -6,6 +6,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ChaveDICTService extends _GenericService<ChaveDICT, ChaveDICTRepository> {
-    protected ChaveDICTService() {
+
+    private final ChaveDICTRepository chaveDICTRepository;
+
+    protected ChaveDICTService(ChaveDICTRepository chaveDICTRepository) {
+        super(chaveDICTRepository);
+        this.chaveDICTRepository = chaveDICTRepository;
     }
 }
