@@ -1,13 +1,18 @@
 package bank.recebedorPSP.service;
 
-import bank.recebedorPSP.model.CobrancaPix;
-import bank.recebedorPSP.repository.CobrancaPixRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import bank.recebedorPSP.model.CobrancaPix;
+import bank.recebedorPSP.repository.CobrancaPixRepository;
 
 @Service
 public class CobrancaPixService extends _GenericService<CobrancaPix, CobrancaPixRepository> {
@@ -25,6 +30,33 @@ public class CobrancaPixService extends _GenericService<CobrancaPix, CobrancaPix
 
     @Override
     public CobrancaPix criar(CobrancaPix entity) {
+        if (entity.getChaveDestino() == null || entity.getChaveDestino().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chave destino obrigatória");
+        }
+
+        try {
+            java.net.URI uri = UriComponentsBuilder.fromHttpUrl(centralBaseUrl)
+                    .path("/chave-dict/valor")
+                    .queryParam("q", entity.getChaveDestino())
+                    .build(true)
+                    .toUri();
+            org.springframework.http.ResponseEntity<String> resp = restTemplate.getForEntity(uri, String.class);
+            if (!resp.getStatusCode().is2xxSuccessful()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chave Pix inexistente ou inativa no DICT");
+            }
+            com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(resp.getBody());
+            com.fasterxml.jackson.databind.JsonNode ativaNode = node.get("ativa");
+            if (ativaNode == null || !ativaNode.asBoolean()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chave Pix inexistente ou inativa no DICT");
+            }
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chave Pix inexistente ou inativa no DICT");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Chave Pix inexistente ou inativa no DICT");
+        }
+
         if (entity.getTxid() == null || entity.getTxid().isBlank()) {
             entity.setTxid(generateTxid());
         }
@@ -33,6 +65,7 @@ public class CobrancaPixService extends _GenericService<CobrancaPix, CobrancaPix
 
         java.util.Map<String, Object> payload = new java.util.HashMap<>();
         payload.put("txid", saved.getTxid());
+        payload.put("valor", saved.getValor());
         payload.put("recebedorISPB", saved.getChaveDestino());
 
         HttpHeaders headers = new HttpHeaders();

@@ -32,6 +32,16 @@ public class TransacaoLiquidacaoController extends _GenericController<TransacaoL
     public ResponseEntity<TransacaoLiquidacao> criarMinimo(@org.springframework.web.bind.annotation.RequestBody Map<String, Object> body) {
         String txid = body.get("txid") == null ? null : body.get("txid").toString();
         String recebedorISPB = body.get("recebedorISPB") == null ? null : body.get("recebedorISPB").toString();
+        Double valor = null;
+        Object valorObj = body.get("valor");
+        if (valorObj instanceof Number) {
+            valor = ((Number) valorObj).doubleValue();
+        } else if (valorObj != null) {
+            try {
+                valor = Double.valueOf(valorObj.toString());
+            } catch (Exception ignored) {
+            }
+        }
 
         if (txid == null || txid.isBlank()) {
             String raw = java.util.UUID.randomUUID().toString().replace("-", "");
@@ -52,6 +62,7 @@ public class TransacaoLiquidacaoController extends _GenericController<TransacaoL
 
         TransacaoLiquidacao t = new TransacaoLiquidacao();
         t.setTxid(txid);
+        t.setValor(valor);
         t.setRecebedorISPB(participante);
         t.setStatus(StatusSPI.PENDENTE);
         t.setDataCriacao(LocalDate.now());

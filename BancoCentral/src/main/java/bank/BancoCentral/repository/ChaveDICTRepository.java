@@ -1,12 +1,13 @@
 package bank.BancoCentral.repository;
 
-import bank.BancoCentral.model.ChaveDICT;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+import bank.BancoCentral.model.ChaveDICT;
 
 @Repository
 public interface ChaveDICTRepository extends JpaRepository<ChaveDICT, UUID> {
-
+    java.util.Optional<ChaveDICT> findByValor(String valor);
 }
