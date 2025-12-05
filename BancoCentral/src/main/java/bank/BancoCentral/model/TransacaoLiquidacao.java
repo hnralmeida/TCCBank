@@ -3,9 +3,13 @@ package bank.BancoCentral.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "TransacaoLiquidacao")
+@Getter
+@Setter
 public class TransacaoLiquidacao {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

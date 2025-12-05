@@ -20,7 +20,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/cliente", "/conta", "/chavepix").permitAll()
+                        .requestMatchers("/cliente", "/conta", "/chavepix", "/transacaopix/**", "/cobrancapix/**").permitAll()
                         .requestMatchers("/api").anonymous()
                         .anyRequest().permitAll()
                 );

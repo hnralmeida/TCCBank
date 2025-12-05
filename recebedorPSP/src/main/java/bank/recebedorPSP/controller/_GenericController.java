@@ -26,7 +26,7 @@ public abstract class _GenericController<TipoEntidade> {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(this.genericService.listar());
     }
 
-    @GetMapping({"/{id}"})
+    @GetMapping({"/{id:[0-9a-fA-F\\-]{36}}"})
     @GenericOperation(
             description = "Buscar um registro por ID"
     )

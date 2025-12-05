@@ -4,9 +4,13 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "TransacaoPix")
+@Getter
+@Setter
 public class TransacaoPix {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
