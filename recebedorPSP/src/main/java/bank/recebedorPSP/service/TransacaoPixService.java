@@ -82,4 +82,17 @@ public class TransacaoPixService extends _GenericService<TransacaoPix, Transacao
     public Optional<TransacaoPix> buscarPorTxid(String txid) {
         return transacaoPixRepository.findByTxid(txid);
     }
+
+    public TransacaoPix atualizarStatusPorTxid(String txid, StatusPix novoStatus) {
+        Optional<TransacaoPix> opt = transacaoPixRepository.findByTxid(txid);
+        if (opt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "TransacaoPix não encontrada");
+        }
+        TransacaoPix t = opt.get();
+        t.setStatus(novoStatus);
+        if (novoStatus == StatusPix.PROCESSADA) {
+            t.setDataConclusao(LocalDate.now());
+        }
+        return transacaoPixRepository.save(t);
+    }
 }

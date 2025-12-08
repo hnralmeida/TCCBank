@@ -27,7 +27,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/cliente", "/conta", "/chavepix").permitAll()
+                        .requestMatchers("/cliente", "/conta", "/chavepix", "/pagamento/**").permitAll()
                         .anyRequest().permitAll()
                 );
         return http.build();

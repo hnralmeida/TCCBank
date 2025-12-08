@@ -13,4 +13,8 @@ public class TransacaoLiquidacaoService extends _GenericService<TransacaoLiquida
         super(transacaoLiquidacaoRepository);
         this.transacaoLiquidacaoRepository = transacaoLiquidacaoRepository;
     }
+
+    public java.util.Optional<TransacaoLiquidacao> buscarPorTxid(String txid) {
+        return transacaoLiquidacaoRepository.findByTxid(txid);
+    }
 }

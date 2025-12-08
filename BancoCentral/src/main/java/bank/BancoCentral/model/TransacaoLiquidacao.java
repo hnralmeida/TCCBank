@@ -20,10 +20,10 @@ public class TransacaoLiquidacao {
     @Column(length = 250)
     private String txid;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private ParticipanteSPI recebedorISPB;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private ParticipanteSPI pagadorISPB;
 
     @Enumerated(EnumType.STRING)

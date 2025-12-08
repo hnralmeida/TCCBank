@@ -1,18 +1,22 @@
 package bank.BancoCentral.controller;
 
-import bank.BancoCentral.model.TransacaoLiquidacao;
-import bank.BancoCentral.service.TransacaoLiquidacaoService;
-import bank.BancoCentral.model.ParticipanteSPI;
-import bank.BancoCentral.model.StatusSPI;
-import bank.BancoCentral.repository.ParticipanteSPIRepository;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import bank.BancoCentral.model.ParticipanteSPI;
+import bank.BancoCentral.model.StatusSPI;
+import bank.BancoCentral.model.TransacaoLiquidacao;
+import bank.BancoCentral.repository.ParticipanteSPIRepository;
+import bank.BancoCentral.service.TransacaoLiquidacaoService;
 
 @RestController
 @RequestMapping("/transacaoliquidacao")
@@ -69,5 +73,65 @@ public class TransacaoLiquidacaoController extends _GenericController<TransacaoL
 
         TransacaoLiquidacao saved = transacaoLiquidacaoService.criar(t);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @GetMapping("/{txid}")
+    public ResponseEntity<TransacaoLiquidacao> buscarPorTxid(@PathVariable String txid) {
+        Optional<TransacaoLiquidacao> opt = transacaoLiquidacaoService.buscarPorTxid(txid);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(opt.get());
+    }
+
+    @GetMapping("/existe/{txid}")
+    public ResponseEntity<Map<String, Object>> existe(@PathVariable String txid) {
+        Optional<TransacaoLiquidacao> opt = transacaoLiquidacaoService.buscarPorTxid(txid);
+        return ResponseEntity.status(opt.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND)
+                .body(java.util.Map.of("exists", opt.isPresent()));
+    }
+
+    @GetMapping("/detalhe/{txid}")
+    public ResponseEntity<Map<String, Object>> detalhe(@PathVariable String txid) {
+        Optional<TransacaoLiquidacao> opt = transacaoLiquidacaoService.buscarPorTxid(txid);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        TransacaoLiquidacao t = opt.get();
+        String recebedor = t.getRecebedorISPB() == null ? null : t.getRecebedorISPB().getCodigoISPB();
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("txid", t.getTxid());
+        result.put("valor", t.getValor());
+        result.put("status", t.getStatus());
+        result.put("recebedorISPB", recebedor);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/{txid}/liquidar")
+    public ResponseEntity<TransacaoLiquidacao> liquidar(@PathVariable String txid,
+                                                        @org.springframework.web.bind.annotation.RequestBody Map<String, Object> body) {
+        Optional<TransacaoLiquidacao> opt = transacaoLiquidacaoService.buscarPorTxid(txid);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        String pagadorISPB = body.get("pagadorISPB") == null ? null : body.get("pagadorISPB").toString();
+        ParticipanteSPI participantePagador = null;
+        if (pagadorISPB != null && !pagadorISPB.isBlank()) {
+            participantePagador = participanteSPIRepository.findByCodigoISPB(pagadorISPB)
+                    .orElseGet(() -> {
+                        ParticipanteSPI p = new ParticipanteSPI();
+                        p.setCodigoISPB(pagadorISPB);
+                        p.setNome(pagadorISPB);
+                        p.setAtivo(true);
+                        return participanteSPIRepository.save(p);
+                    });
+        }
+
+        TransacaoLiquidacao t = opt.get();
+        t.setPagadorISPB(participantePagador);
+        t.setStatus(StatusSPI.PROCESSADA);
+        t.setDataLiquidacao(LocalDate.now());
+        TransacaoLiquidacao saved = transacaoLiquidacaoService.atualizar(t.getId(), t);
+        return ResponseEntity.ok(saved);
     }
 }
