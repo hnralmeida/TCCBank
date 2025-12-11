@@ -13,4 +13,10 @@ public class ContaService extends _GenericService<Conta, ContaRepository> {
         super(contaRepository);
         this.contaRepository = contaRepository;
     }
+
+    public java.util.Optional<Conta> buscarPorNumero(String numero) {
+        java.util.List<Conta> list = contaRepository.findAllByNumero(numero);
+        if (list == null || list.isEmpty()) return java.util.Optional.empty();
+        return java.util.Optional.of(list.get(0));
+    }
 }

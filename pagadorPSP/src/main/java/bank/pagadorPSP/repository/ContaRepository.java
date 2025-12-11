@@ -1,13 +1,15 @@
 package bank.pagadorPSP.repository;
 
-import bank.pagadorPSP.model.Conta;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
+import bank.pagadorPSP.model.Conta;
 
 @Repository
 public interface ContaRepository extends JpaRepository<Conta, UUID> {
+    java.util.List<Conta> findAllByNumero(String numero);
 
 }
 
