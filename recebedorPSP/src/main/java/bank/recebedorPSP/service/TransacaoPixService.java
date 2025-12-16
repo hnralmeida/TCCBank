@@ -16,15 +16,18 @@ import org.springframework.web.server.ResponseStatusException;
 
 import bank.recebedorPSP.model.Conta;
 import bank.recebedorPSP.model.StatusPix;
+import bank.recebedorPSP.model.CobrancaPix;
 import bank.recebedorPSP.model.TransacaoPix;
 import bank.recebedorPSP.repository.ContaRepository;
 import bank.recebedorPSP.repository.TransacaoPixRepository;
+import bank.recebedorPSP.repository.CobrancaPixRepository;
 
 @Service
 public class TransacaoPixService extends _GenericService<TransacaoPix, TransacaoPixRepository> {
 
     private final TransacaoPixRepository transacaoPixRepository;
     private final ContaRepository contaRepository;
+    private final CobrancaPixRepository cobrancaPixRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${central.baseUrl:http://banco-central:8095}")
@@ -33,10 +36,11 @@ public class TransacaoPixService extends _GenericService<TransacaoPix, Transacao
     @Value("${recebedor.ispb:RECEBEDOR-ISPB}")
     private String recebedorIspb;
 
-    protected TransacaoPixService(TransacaoPixRepository transacaoPixRepository, ContaRepository contaRepository) {
+    protected TransacaoPixService(TransacaoPixRepository transacaoPixRepository, ContaRepository contaRepository, CobrancaPixRepository cobrancaPixRepository) {
         super(transacaoPixRepository);
         this.transacaoPixRepository = transacaoPixRepository;
         this.contaRepository = contaRepository;
+        this.cobrancaPixRepository = cobrancaPixRepository;
     }
 
     @Override
@@ -55,6 +59,11 @@ public class TransacaoPixService extends _GenericService<TransacaoPix, Transacao
         entity.setDataCriacao(LocalDate.now());
 
         TransacaoPix saved = super.criar(entity);
+
+        cobrancaPixRepository.findByTxid(saved.getTxid()).ifPresent(c -> {
+            c.setStatus(saved.getStatus());
+            cobrancaPixRepository.save(c);
+        });
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("txid", saved.getTxid());
@@ -93,6 +102,13 @@ public class TransacaoPixService extends _GenericService<TransacaoPix, Transacao
         if (novoStatus == StatusPix.PROCESSADA) {
             t.setDataConclusao(LocalDate.now());
         }
-        return transacaoPixRepository.save(t);
+        TransacaoPix updated = transacaoPixRepository.save(t);
+
+        cobrancaPixRepository.findByTxid(txid).ifPresent(c -> {
+            c.setStatus(novoStatus);
+            cobrancaPixRepository.save(c);
+        });
+
+        return updated;
     }
 }

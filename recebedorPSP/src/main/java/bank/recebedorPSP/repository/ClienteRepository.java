@@ -8,5 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, UUID> {
+    java.util.Optional<Cliente> findByRegistro(String registro);
 
 }

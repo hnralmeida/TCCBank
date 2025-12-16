@@ -23,7 +23,7 @@ public class Cliente {
     @Column(length = 250)
     private String nome;
 
-    @Column(length = 250)
+    @Column(length = 250, unique = true)
     private String registro;
 
     @Column(length = 250)

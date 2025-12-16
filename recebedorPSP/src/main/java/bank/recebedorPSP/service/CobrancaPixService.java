@@ -61,6 +61,8 @@ public class CobrancaPixService extends _GenericService<CobrancaPix, CobrancaPix
             entity.setTxid(generateTxid());
         }
 
+        entity.setStatus(bank.recebedorPSP.model.StatusPix.PENDENTE);
+
         CobrancaPix saved = super.criar(entity);
 
         java.util.Map<String, Object> payload = new java.util.HashMap<>();
@@ -86,5 +88,45 @@ public class CobrancaPixService extends _GenericService<CobrancaPix, CobrancaPix
 
     public java.util.Optional<CobrancaPix> buscarPorTxid(String txid) {
         return cobrancaPixRepository.findByTxid(txid);
+    }
+
+    public CobrancaPix atualizarStatusPorTxid(String txid, bank.recebedorPSP.model.StatusPix novoStatus) {
+        java.util.Optional<CobrancaPix> opt = cobrancaPixRepository.findByTxid(txid);
+        if (opt.isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "CobrancaPix não encontrada");
+        }
+        CobrancaPix c = opt.get();
+        c.setStatus(novoStatus);
+        return cobrancaPixRepository.save(c);
+    }
+
+    public CobrancaPix sincronizarStatusComCentral(String txid) {
+        java.util.Optional<CobrancaPix> opt = cobrancaPixRepository.findByTxid(txid);
+        if (opt.isEmpty()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "CobrancaPix não encontrada");
+        }
+        try {
+            org.springframework.http.ResponseEntity<java.util.Map> resp = restTemplate.getForEntity(centralBaseUrl + "/transacaoliquidacao/detalhe/" + txid, java.util.Map.class);
+            if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Detalhe central indisponível");
+            }
+            Object statusObj = resp.getBody().get("status");
+            if (statusObj == null) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Status não encontrado na central");
+            }
+            String statusStr = statusObj.toString();
+            bank.recebedorPSP.model.StatusPix novoStatus;
+            try {
+                novoStatus = bank.recebedorPSP.model.StatusPix.valueOf(statusStr);
+            } catch (IllegalArgumentException e) {
+                // fallback simples: PENDENTE se não mapeável
+                novoStatus = bank.recebedorPSP.model.StatusPix.PENDENTE;
+            }
+            CobrancaPix c = opt.get();
+            c.setStatus(novoStatus);
+            return cobrancaPixRepository.save(c);
+        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Transação não encontrada na central");
+        }
     }
 }

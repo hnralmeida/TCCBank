@@ -13,4 +13,16 @@ public class ClienteService extends _GenericService<Cliente, ClienteRepository> 
         super(clienteRepository);
         this.clienteRepository = clienteRepository;
     }
+
+    @Override
+    public Cliente criar(Cliente entity) {
+        String reg = entity.getRegistro();
+        if (reg != null && !reg.isBlank()) {
+            java.util.Optional<Cliente> existing = clienteRepository.findByRegistro(reg);
+            if (existing.isPresent()) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Registro já cadastrado");
+            }
+        }
+        return super.criar(entity);
+    }
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface ContaRepository extends JpaRepository<Conta, UUID> {
+    java.util.Optional<Conta> findByAgenciaAndNumero(String agencia, String numero);
 
 }
 

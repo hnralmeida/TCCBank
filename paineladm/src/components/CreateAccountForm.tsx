@@ -6,10 +6,12 @@ export default function CreateAccountForm({ server, onCreated }: { server: strin
   const [cliente, setCliente] = useState({ nome: '', registro: '', email: '', telefone: '' });
   const [conta, setConta] = useState({ numero: '', agencia: '', saldo: '', tipo: 'CORRENTE' });
   const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
 
   async function handleCreate() {
     setBaseUrl(server);
     setStatus('');
+    setError('');
     try {
       const c = await createCliente(cliente);
       const createdConta = await createConta({ ...conta, cliente: { id: c.id } });
@@ -17,6 +19,11 @@ export default function CreateAccountForm({ server, onCreated }: { server: strin
       onCreated(createdConta);
     } catch (e) {
       setStatus('Erro ao criar');
+      const msg = (e && (e as any).response && (e as any).response.data && ((e as any).response.data.message || (e as any).response.data))
+        || (e && (e as any).message)
+        || 'Erro desconhecido';
+      setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      try { console.error(e); } catch {}
     }
   }
 
@@ -38,6 +45,7 @@ export default function CreateAccountForm({ server, onCreated }: { server: strin
       </div>
       <button onClick={handleCreate} style={{ marginTop: 8 }}>Criar</button>
       {status ? <div>{status}</div> : null}
+      {error ? <div style={{ color: '#b00020' }}>{error}</div> : null}
     </div>
   );
 }

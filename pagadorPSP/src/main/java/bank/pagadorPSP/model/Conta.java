@@ -15,7 +15,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Conta")
+@Table(name = "Conta", uniqueConstraints = {
+        @jakarta.persistence.UniqueConstraint(columnNames = {"agencia", "numero"})
+})
 @Getter
 @Setter
 public class Conta {

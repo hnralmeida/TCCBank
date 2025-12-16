@@ -1,13 +1,24 @@
 package bank.recebedorPSP.model;
 
-import jakarta.persistence.*;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
-
 @Entity
-@Table(name = "Conta")
+@Table(name = "Conta", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"agencia", "numero"})
+})
 @Getter
 @Setter
 public class Conta {
